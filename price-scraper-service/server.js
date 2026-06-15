@@ -75,6 +75,58 @@ app.post('/search', requireApiKey, async (req, res) => {
   }
 });
 
+// POST /debug-html — fetch Akakce search HTML for debugging selectors
+app.post('/debug-html', requireApiKey, async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ success: false, message: 'query required' });
+
+    const puppeteer = require('puppeteer');
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    const url = `https://www.akakce.com/arama/?q=${encodeURIComponent(query)}`;
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 });
+    const html = await page.content();
+    await browser.close();
+
+    // Extract first 5000 chars of product-related HTML
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+    
+    // Find all links/elements that look product-related
+    const productSelectors = [];
+    $('a').each((i, el) => {
+      if (i >= 20) return false;
+      const href = $(el).attr('href') || '';
+      const text = $(el).text().trim().substring(0, 100);
+      const classes = $(el).attr('class') || '';
+      if (text && href) {
+        productSelectors.push({ href: href.substring(0, 150), text, classes });
+      }
+    });
+
+    // Get the main content area classes
+    const bodyClasses = $('body').attr('class') || '';
+    const mainContent = $('ul, .w, #content, main, .search-results').first().html() || '';
+
+    res.json({
+      success: true,
+      pageTitle: $('title').text(),
+      bodyClasses,
+      totalLinks: $('a').length,
+      fiyatiLinks: $('a[href*="-fiyati,"]').length,
+      sampleLinks: productSelectors,
+      mainContentSnippet: mainContent.substring(0, 3000)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // POST /clear-cache — flush the result cache
 app.post('/clear-cache', requireApiKey, (req, res) => {
   PriceSearchService.clearCache();
