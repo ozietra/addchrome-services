@@ -2,7 +2,7 @@
  * Shared API client for Chrome Extensions
  * Communicates with the backend API
  */
-const API_BASE = 'https://api.addchrome.com/api';
+const API_BASE = 'https://addchrome.com/api';
 
 const apiClient = {
   token: null,

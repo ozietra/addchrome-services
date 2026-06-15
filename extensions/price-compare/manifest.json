@@ -9,7 +9,7 @@
     "storage"
   ],
   "host_permissions": [
-    "https://api.addchrome.com/*"
+    "https://addchrome.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
