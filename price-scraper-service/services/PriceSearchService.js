@@ -32,8 +32,10 @@ const siteInfo = {
   cimri: { name: 'Cimri', color: '#0786e7' }
 };
 
-// Used when the caller doesn't specify any sites
-const DEFAULT_SITES = ['cimri', 'trendyol', 'hepsiburada', 'amazon'];
+// Used when the caller doesn't specify any sites.
+// We default to Cimri alone because it aggregates all other marketplaces,
+// and running multiple headless scrapers concurrently crashes the Render free tier.
+const DEFAULT_SITES = ['cimri'];
 
 class PriceSearchService {
   /**
@@ -81,22 +83,23 @@ class PriceSearchService {
         ]
       });
 
-      // Run all selected scrapers in parallel against the same browser.
-      const settled = await Promise.allSettled(
-        selected.map((site) => scrapers[site].scrape(browser, query, { debug }))
-      );
+      const allResults = [];
+      const siteStats = {};
 
-      settled.forEach((r, idx) => {
-        const site = selected[idx];
-        if (r.status === 'fulfilled' && Array.isArray(r.value)) {
-          console.log(`[PriceSearch]   ${site}: ${r.value.length} items`);
-          results.push(...r.value);
-        } else if (r.status === 'rejected') {
-          console.error(`[PriceSearch]   ${site}: FAILED -> ${r.reason}`);
-        } else {
-          console.warn(`[PriceSearch]   ${site}: 0 items (no array returned)`);
+      for (const siteKey of selected) {
+        const scraper = scrapers[siteKey];
+        try {
+          const start = Date.now();
+          const siteResults = await scraper.scrape(browser, query, { debug });
+          siteStats[siteKey] = { items: siteResults.length, ms: Date.now() - start };
+          console.log(`[PriceSearch]   ${siteKey}: ${siteResults.length} items`);
+          allResults.push(...siteResults);
+        } catch (err) {
+          siteStats[siteKey] = { items: 0, error: err.message };
+          console.error(`[PriceSearch]   ${siteKey} failed: ${err.message}`);
         }
-      });
+      }
+      results = allResults;
     } catch (error) {
       console.error(`[PriceSearch] browser error: ${error.message}`);
     } finally {

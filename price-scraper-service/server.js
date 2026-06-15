@@ -88,8 +88,15 @@ app.post('/debug-html', requireApiKey, async (req, res) => {
     });
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-    const url = `https://www.akakce.com/arama/?q=${encodeURIComponent(query)}`;
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 });
+    const siteUrl = req.body.site === 'cimri' ? `https://www.cimri.com/arama/?q=${encodeURIComponent(query)}` : `https://www.akakce.com/arama/?q=${encodeURIComponent(query)}`;
+    await page.goto(siteUrl, { waitUntil: 'domcontentloaded', timeout: 25000 });
+    
+    if (req.body.site === 'cimri') {
+       try { await page.waitForSelector('a[href*="-fiyatlari"]', {timeout: 10000}); } catch(e) {}
+    } else {
+       try { await page.waitForSelector('a[href*="-fiyati,"]', {timeout: 10000}); } catch(e) {}
+    }
+
     const html = await page.content();
     await browser.close();
 
