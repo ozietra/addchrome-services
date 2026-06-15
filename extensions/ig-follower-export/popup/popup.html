@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Follower Export</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect width="24" height="24" rx="6" fill="url(#ig-grad)"/>
+          <circle cx="12" cy="12" r="5" stroke="white" stroke-width="1.5" fill="none"/>
+          <circle cx="17" cy="7" r="1.2" fill="white"/>
+          <defs>
+            <linearGradient id="ig-grad" x1="0" y1="24" x2="24" y2="0">
+              <stop stop-color="#feda75"/><stop offset=".25" stop-color="#fa7e1e"/>
+              <stop offset=".5" stop-color="#d62976"/><stop offset=".75" stop-color="#962fbf"/>
+              <stop offset="1" stop-color="#4f5bd5"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="header-title" data-i18n="extensionName">Instagram Takipçi Dışa Aktarma</span>
+      </div>
+      <div class="header-right">
+        <button id="btnLang" class="btn-icon" title="Dil Değiştir">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </button>
+        <button id="btnSettings" class="btn-icon" title="Ayarlar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Auth Screen -->
+    <section id="authScreen" class="screen active">
+      <div class="auth-card">
+        <div class="auth-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/>
+          </svg>
+        </div>
+        <h2 id="authTitle" data-i18n="loginTitle">Hesabınıza Giriş Yapın</h2>
+        <form id="authForm" class="auth-form">
+          <div id="nameField" class="form-group hidden">
+            <label data-i18n="name">Ad Soyad</label>
+            <input type="text" id="inputName" placeholder="Ad Soyad">
+          </div>
+          <div class="form-group">
+            <label data-i18n="email">E-posta</label>
+            <input type="email" id="inputEmail" placeholder="ornek@email.com" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="password">Şifre</label>
+            <input type="password" id="inputPassword" placeholder="******" required minlength="6">
+          </div>
+          <div id="authError" class="error-msg hidden"></div>
+          <button type="submit" id="btnAuth" class="btn-primary">
+            <span data-i18n="login">Giriş Yap</span>
+          </button>
+        </form>
+        <p class="auth-switch">
+          <span id="switchText" data-i18n="noAccount">Hesabınız yok mu?</span>
+          <a href="#" id="switchAuth" data-i18n="register">Kayıt Ol</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Not on Instagram Screen -->
+    <section id="notInstagramScreen" class="screen">
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/>
+          <circle cx="17.5" cy="6.5" r="1.5"/>
+        </svg>
+        <h3 data-i18n="openInstagram">Lütfen Instagram'ı açın</h3>
+        <p data-i18n="openInstagramDesc">Bu eklenti yalnızca instagram.com üzerinde çalışır.</p>
+        <a href="https://www.instagram.com" target="_blank" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          <span>Instagram'ı Aç</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Screen -->
+    <section id="mainScreen" class="screen">
+      <!-- User bar -->
+      <div class="user-bar">
+        <div class="user-info">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span id="userEmail">user@email.com</span>
+        </div>
+        <div class="user-badge" id="userBadge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Free</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="followers">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span data-i18n="followers">Takipçiler</span>
+        </button>
+        <button class="tab" data-tab="following">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/>
+            <line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          <span data-i18n="following">Takip Edilenler</span>
+        </button>
+        <button class="tab" data-tab="likes">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span data-i18n="likes">Beğeniler</span>
+        </button>
+        <button class="tab" data-tab="comments">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span data-i18n="comments">Yorumlar</span>
+        </button>
+      </div>
+
+      <!-- Scan Button -->
+      <div class="scan-section">
+        <button id="btnScan" class="btn-scan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          <span data-i18n="scan">Tara</span>
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div id="progressSection" class="progress-section hidden">
+        <div class="progress-info">
+          <span data-i18n="scanning">Taranıyor...</span>
+          <span id="progressCount">0 / 0</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsSection" class="results-section hidden">
+        <div class="results-header">
+          <span><span data-i18n="total">Toplam</span>: <strong id="resultCount">0</strong></span>
+          <div class="export-buttons">
+            <button id="btnExportCSV" class="btn-export" title="CSV">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>CSV</span>
+            </button>
+            <button id="btnExportExcel" class="btn-export btn-export-premium" title="Excel (Premium)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Excel</span>
+              <svg class="lock-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div id="resultsList" class="results-list"></div>
+      </div>
+
+      <!-- Premium Prompt -->
+      <div id="premiumPrompt" class="premium-prompt hidden">
+        <div class="premium-card">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-premium)" stroke-width="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <h3 data-i18n="premiumRequired">Premium Gerekli</h3>
+          <p data-i18n="premiumDesc">Bu özellik premium üyelik gerektirir.</p>
+          <button id="btnUpgrade" class="btn-premium" data-i18n="upgradePremium">Premium'a Yükselt</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 data-i18n="settings">Ayarlar</h3>
+          <button id="closeSettings" class="btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-item">
+            <label data-i18n="language">Dil</label>
+            <select id="langSelect" class="select">
+              <option value="tr">Türkçe</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Plan</label>
+            <span id="planInfo" class="plan-badge">Free</span>
+          </div>
+          <button id="btnLogout" class="btn-danger">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span data-i18n="logout">Çıkış Yap</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/logger.js"></script>
+  <script src="../shared/i18n.js"></script>
+  <script src="../shared/api-client.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

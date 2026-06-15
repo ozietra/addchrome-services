@@ -1,0 +1,18 @@
+# Render Blueprint — Fiyat Tarama Microservice'i tek tikla deploy etmek icin.
+# https://render.com -> New -> Blueprint -> bu repoyu sec.
+services:
+  - type: web
+    name: addchrome-price-scraper
+    runtime: docker
+    repo: # (Render arayuzunde repo secilince otomatik dolar)
+    dockerfilePath: ./price-scraper-service/Dockerfile
+    dockerContext: ./price-scraper-service
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SCRAPER_API_KEY
+        sync: false   # Render panosunda elle girilecek

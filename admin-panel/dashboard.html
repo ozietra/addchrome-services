@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Kill any leftover/rogue service worker registered on this origin (e.g. a
+    // previous app that ran on localhost:3000). Such a worker intercepts API
+    // requests and serves stale/empty responses on a normal refresh (only a hard
+    // reload bypasses it) — this was the real cause of the admin "reset on F5"
+    // and of the "chrome-extension scheme unsupported" Cache error.
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+      navigator.serviceWorker.getRegistrations().then(function (rs) {
+        var had = rs.length > 0;
+        rs.forEach(function (r) { r.unregister(); });
+        var clearCaches = (window.caches && caches.keys)
+          ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
+          : Promise.resolve();
+        clearCaches.catch(function () {}).then(function () {
+          if ((had || navigator.serviceWorker.controller) && !sessionStorage.getItem('sw_killed')) {
+            sessionStorage.setItem('sw_killed', '1');
+            location.reload();
+          }
+        });
+      }).catch(function () {});
+    })();
+  </script>
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Yönetim Paneli — Dashboard</title>
+  <link rel="stylesheet" href="css/admin.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect width="24" height="24" rx="6" fill="url(#s-grad)"/>
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="s-grad" x1="0" y1="24" x2="24" y2="0"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+        </svg>
+        <span>Yönetim Paneli</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="#users" class="nav-item" data-page="users">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Kullanıcılar</span>
+        </a>
+        <a href="#payments" class="nav-item" data-page="payments">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>Ödemeler</span>
+        </a>
+        <a href="#extensions" class="nav-item" data-page="extensions">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <span>Eklenti Ayarları</span>
+        </a>
+        <a href="#stats" class="nav-item" data-page="stats">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>İstatistikler</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="btnLogout" class="nav-item logout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Çıkış Yap</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top bar -->
+      <div class="topbar">
+        <button id="menuToggle" class="btn-menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="topbar-right">
+          <span id="adminEmail" class="admin-email">admin@admin.com</span>
+        </div>
+      </div>
+
+      <!-- Pages -->
+      <div class="page-container">
+        <!-- Dashboard -->
+        <section id="page-dashboard" class="page active">
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-body"><div class="stat-value" id="dTotalUsers">0</div><div class="stat-label">Toplam Kullanıcı</div></div></div>
+            <div class="stat-card"><div class="stat-icon gold"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="stat-body"><div class="stat-value" id="dPremiumUsers">0</div><div class="stat-label">Premium Üye</div></div></div>
+            <div class="stat-card"><div class="stat-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-body"><div class="stat-value" id="dTotalRevenue">0 TL</div><div class="stat-label">Toplam Gelir</div></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="stat-body"><div class="stat-value" id="dTotalPayments">0</div><div class="stat-label">Toplam Ödeme</div></div></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><h3>Son Kayıtlar</h3></div>
+              <div class="card-body"><table class="table" id="recentUsersTable"><thead><tr><th>E-posta</th><th>Tarih</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>Son Ödemeler</h3></div>
+              <div class="card-body"><table class="table" id="recentPaymentsTable"><thead><tr><th>Kullanıcı</th><th>Eklenti</th><th>Tutar</th></tr></thead><tbody></tbody></table></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>Eklenti Bazlı Premium Üyeler</h3></div>
+            <div class="card-body">
+              <div class="ext-stats" id="extStats"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Users -->
+        <section id="page-users" class="page">
+          <div class="page-actions">
+            <div class="search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="userSearch" placeholder="Kullanıcı ara...">
+            </div>
+            <div class="filter-group">
+              <select id="filterExtension" class="filter-select"><option value="">Tüm Eklentiler</option><option value="ig-export">IG Takipçi Export</option><option value="ig-unfollow">IG Unfollow AI</option><option value="price-compare">Fiyat Karşılaştır</option></select>
+              <select id="filterPlan" class="filter-select"><option value="">Tüm Planlar</option><option value="free">Ücretsiz</option><option value="premium">Premium</option></select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <table class="table" id="usersTable">
+                <thead><tr><th>E-posta</th><th>Ad</th><th>Dil</th><th>Kayıt Tarihi</th><th>Abonelikler</th><th>Durum</th><th>İşlem</th></tr></thead>
+                <tbody></tbody>
+              </table>
+              <div class="pagination" id="usersPagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payments -->
+        <section id="page-payments" class="page">
+          <div class="page-actions">
+            <div class="filter-group">
+              <select id="paymentStatus" class="filter-select"><option value="">Tüm Durumlar</option><option value="completed">Tamamlandı</option><option value="pending">Beklemede</option><option value="failed">Başarısız</option></select>
+              <select id="paymentExtension" class="filter-select"><option value="">Tüm Eklentiler</option><option value="ig-export">IG Takipçi Export</option><option value="ig-unfollow">IG Unfollow AI</option><option value="price-compare">Fiyat Karşılaştır</option></select>
+            </div>
+          </div>
+          <div class="revenue-cards" id="revenueCards"></div>
+          <div class="card">
+            <div class="card-body">
+              <table class="table" id="paymentsTable">
+                <thead><tr><th>Kullanıcı</th><th>Eklenti</th><th>Tutar</th><th>Durum</th><th>Tarih</th></tr></thead>
+                <tbody></tbody>
+              </table>
+              <div class="pagination" id="paymentsPagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Extensions -->
+        <section id="page-extensions" class="page">
+          <div id="extensionCards" class="extension-cards"></div>
+        </section>
+
+        <!-- Stats -->
+        <section id="page-stats" class="page">
+          <div class="page-actions">
+            <select id="statsExtension" class="filter-select"><option value="ig-export">IG Takipçi Export</option><option value="ig-unfollow">IG Unfollow AI</option><option value="price-compare">Fiyat Karşılaştır</option></select>
+            <select id="statsDays" class="filter-select"><option value="7">Son 7 Gün</option><option value="30" selected>Son 30 Gün</option><option value="90">Son 90 Gün</option></select>
+          </div>
+          <div class="grid-2">
+            <div class="card"><div class="card-header"><h3>Günlük Kayıtlar</h3></div><div class="card-body"><div class="chart-container" id="registrationsChart"></div></div></div>
+            <div class="card"><div class="card-header"><h3>Günlük Gelir</h3></div><div class="card-body"><div class="chart-container" id="revenueChart"></div></div></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- User Detail Modal -->
+  <div id="userModal" class="modal hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Kullanıcı Detayı</h3>
+        <button class="btn-close" onclick="document.getElementById('userModal').classList.add('hidden')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="userModalBody"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+</body>
+</html>
