@@ -7,6 +7,7 @@ const AmazonScraper = require('./scrapers/AmazonScraper');
 const N11Scraper = require('./scrapers/N11Scraper');
 const CiceksepetiScraper = require('./scrapers/CiceksepetiScraper');
 const PuppeteerAkakceScraper = require('./scrapers/PuppeteerAkakceScraper');
+const CimriScraper = require('./scrapers/CimriScraper');
 
 // Cache results for 15 minutes (per query + selected-site combination)
 const cache = new NodeCache({ stdTTL: 900, checkperiod: 120 });
@@ -17,7 +18,8 @@ const scrapers = {
   amazon: new AmazonScraper(),
   n11: new N11Scraper(),
   ciceksepeti: new CiceksepetiScraper(),
-  akakce: new PuppeteerAkakceScraper()
+  akakce: new PuppeteerAkakceScraper(),
+  cimri: new CimriScraper()
 };
 
 const siteInfo = {
@@ -26,11 +28,12 @@ const siteInfo = {
   amazon: { name: 'Amazon TR', color: '#ff9900' },
   n11: { name: 'n11', color: '#7b2d8e' },
   ciceksepeti: { name: '\u00C7i\u00E7eksepeti', color: '#66cc00' },
-  akakce: { name: 'Akak\u00E7e', color: '#e53935' }
+  akakce: { name: 'Akak\u00E7e', color: '#e53935' },
+  cimri: { name: 'Cimri', color: '#0786e7' }
 };
 
 // Used when the caller doesn't specify any sites
-const DEFAULT_SITES = ['trendyol', 'hepsiburada', 'amazon', 'n11'];
+const DEFAULT_SITES = ['cimri', 'trendyol', 'hepsiburada', 'amazon'];
 
 class PriceSearchService {
   /**
@@ -47,12 +50,14 @@ class PriceSearchService {
       .filter((s) => scrapers[s]);
     if (selected.length === 0) selected = [...DEFAULT_SITES];
 
-    // NOTE: The direct marketplace scrapers (Trendyol/Hepsiburada/n11/Çiçeksepeti)
-    // are blocked by aggressive bot protection and return nothing. We therefore
-    // source everything from the Akakce aggregator, which already returns each
-    // result tagged with its real store (Trendyol, Hepsiburada, ...) and a
-    // direct link to that store — so the UI still shows diverse shops.
-    selected = ['akakce'];
+    // NOTE: Akakce is blocked by Cloudflare bot protection. We use Cimri
+    // as an aggregator and direct marketplace scrapers instead.
+    // If Akakce was explicitly requested, swap it for Cimri.
+    if (selected.includes('akakce')) {
+      selected = selected.filter(s => s !== 'akakce');
+      if (!selected.includes('cimri')) selected.push('cimri');
+    }
+    if (selected.length === 0) selected = [...DEFAULT_SITES];
 
     const cacheKey = `search:${query.toLowerCase()}:${[...selected].sort().join(',')}`;
     const cached = cache.get(cacheKey);
