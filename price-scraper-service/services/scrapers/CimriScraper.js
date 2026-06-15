@@ -22,18 +22,26 @@ class CimriScraper extends BaseScraper {
       const link = this.abs($el.attr('href'));
       
       // Find a common parent container (card)
-      let $container = $el.parent();
-      for (let j = 0; j < 4; j++) {
-         if ($container.parent().length) $container = $container.parent();
+      let $card = $el.closest('div[data-variant="default"], div[data-variant="A1"]');
+      if (!$card.length) $card = $el.closest('article');
+      if (!$card.length) {
+         let parent = $el.parent();
+         for (let j=0; j<4; j++) {
+            if (parent.children().length > 2 || (parent.text().match(/TL/i) && parent.text().length > 20)) {
+               break;
+            }
+            if (parent.parent().length) parent = parent.parent();
+         }
+         $card = parent;
       }
       
-      const text = $container.text();
+      const text = $card.text();
       // Match price pattern like 47.899,00 TL or 47899 TL
       const priceMatch = text.match(/[\d\.]+(?:,\d+)?\s*TL/i);
       
       // Extract texts from leaf nodes for product name
       const pieces = [];
-      $container.find('*').each((idx, child) => {
+      $card.find('*').each((idx, child) => {
          if ($(child).children().length === 0) {
             const t = $(child).text().trim();
             if (t) pieces.push(t);
@@ -53,7 +61,7 @@ class CimriScraper extends BaseScraper {
         
         // Find image inside the container
         let imageUrl = '';
-        const img = $container.find('img').first();
+        const img = $card.find('img').first();
         if (img.length) {
            imageUrl = this.img(img.attr('src') || img.attr('data-src') || '');
         }
