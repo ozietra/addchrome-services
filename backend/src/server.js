@@ -17,6 +17,10 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
+// cPanel runs behind LiteSpeed reverse proxy — trust proxy headers
+// so that express-rate-limit and req.ip work correctly.
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
