@@ -81,7 +81,9 @@ app.post('/debug-html', requireApiKey, async (req, res) => {
     const { query } = req.body;
     if (!query) return res.status(400).json({ success: false, message: 'query required' });
 
-    const puppeteer = require('puppeteer');
+    const puppeteer = require('puppeteer-extra');
+    const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+    puppeteer.use(StealthPlugin());
     const browser = await puppeteer.launch({
       headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
