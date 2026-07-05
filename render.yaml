@@ -38,9 +38,11 @@ services:
         value: production
       - key: MAIN_BACKEND_URL
         value: https://addchrome.com/api
+      - key: LISTING_CONFIG_SECRET
+        sync: false   # must match the main backend's LISTING_CONFIG_SECRET exactly
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: GROQ_API_KEYS
-        sync: false   # comma-separated Groq keys (gsk_...), entered manually on Render
+        sync: false   # fallback pool, only used if the admin panel has no keys saved
       - key: ALLOWED_ORIGINS
         sync: false

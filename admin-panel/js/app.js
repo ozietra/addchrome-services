@@ -375,6 +375,17 @@
               <label>PayTR Ödeme Linki</label>
               <input type="text" id="ext-vpos-${ext.extensionId}" value="${ext.vposLink || ''}" placeholder="https://...">
             </div>
+            ${ext.extensionId === 'ai-listing-writer' ? `
+            <div class="ext-field">
+              <label>Groq Model</label>
+              <input type="text" id="ext-groq-model-${ext.extensionId}" value="${ext.groqModel || 'llama-3.3-70b-versatile'}" placeholder="llama-3.3-70b-versatile">
+            </div>
+            <div class="ext-field ext-field-full">
+              <label>Groq API Anahtarları (her satıra bir tane, en fazla 20)</label>
+              <textarea id="ext-groq-keys-${ext.extensionId}" rows="4" placeholder="gsk_...">${(ext.groqApiKeys || []).join('\n')}</textarea>
+              <div class="ext-field-hint">ai-listing-backend servisi bu anahtarları 5 dakikada bir günceller; biri rate-limit'e takılırsa otomatik sıradakine geçer.</div>
+            </div>
+            ` : ''}
             <div class="ext-field" style="display:flex;align-items:flex-end">
               <button class="btn btn-primary" style="width:100%" onclick="saveExtension('${ext.extensionId}')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -398,6 +409,13 @@
       premiumPriceYearly: parseFloat($(`#ext-yearly-${extId}`).value) || 0,
       vposLink: $(`#ext-vpos-${extId}`).value
     };
+
+    if (extId === 'ai-listing-writer') {
+      const keysEl = $(`#ext-groq-keys-${extId}`);
+      const modelEl = $(`#ext-groq-model-${extId}`);
+      if (keysEl) data.groqApiKeys = keysEl.value.split('\n').map(k => k.trim()).filter(Boolean);
+      if (modelEl) data.groqModel = modelEl.value.trim();
+    }
 
     try {
       await AdminAPI.updateExtension(extId, data);

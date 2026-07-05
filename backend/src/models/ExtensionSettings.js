@@ -22,6 +22,12 @@ const extensionSettingsSchema = new mongoose.Schema({
   // Free plan limits
   freeLimits: { type: Object, default: {} },
 
+  // AI Listing Writer only: Groq API key pool + model, managed from the admin
+  // panel so keys can be rotated/added without a redeploy. The standalone
+  // ai-listing-backend service fetches these via GET /api/listing-config.
+  groqApiKeys: { type: [String], default: [] },
+  groqModel: { type: String, default: 'llama-3.3-70b-versatile' },
+
   // Extension-specific settings
   settings: { type: Object, default: {} }
 }, {

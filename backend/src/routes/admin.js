@@ -315,7 +315,7 @@ router.put('/extensions/:extensionId', protect, adminOnly, async (req, res, next
 
     // Whitelist + sanitize the editable fields so a bad payload can't corrupt
     // the document or throw a validation error.
-    const { name, vposLink, premiumPriceMonthly, premiumPriceYearly, isActive } = req.body;
+    const { name, vposLink, premiumPriceMonthly, premiumPriceYearly, isActive, groqApiKeys, groqModel } = req.body;
     const updates = {};
     if (name && (name.tr || name.en)) {
       updates.name = { tr: String(name.tr || '').trim(), en: String(name.en || '').trim() };
@@ -330,6 +330,11 @@ router.put('/extensions/:extensionId', protect, adminOnly, async (req, res, next
       updates.premiumPriceYearly = Number.isFinite(v) && v >= 0 ? v : 0;
     }
     if (isActive !== undefined) updates.isActive = !!isActive;
+    if (groqApiKeys !== undefined) {
+      const list = Array.isArray(groqApiKeys) ? groqApiKeys : String(groqApiKeys || '').split(/[\n,]/);
+      updates.groqApiKeys = [...new Set(list.map(k => String(k || '').trim()).filter(Boolean))].slice(0, 20);
+    }
+    if (groqModel !== undefined) updates.groqModel = String(groqModel || '').trim();
 
     const settings = await ExtensionSettings.findOneAndUpdate(
       { extensionId },

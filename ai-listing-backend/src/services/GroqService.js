@@ -3,14 +3,15 @@
  * endpoint (https://groq.com — fast LPU inference, not to be confused with
  * xAI's "Grok" model).
  *
- * Supports a pool of API keys (config.groq.apiKeys, up to 20) so that a
- * rate-limited or rejected key never surfaces as a user-facing error: on
- * 429/401/403/network failure we silently retry the same request with the
- * next key in the pool. `currentIndex` is sticky — once a key succeeds we
- * keep starting from it on the next call instead of round-robining blindly.
+ * Key pool + model come from ConfigProvider (admin-panel-managed, with an
+ * env-var fallback) so that a rate-limited or rejected key never surfaces as
+ * a user-facing error: on 429/401/403/network failure we silently retry the
+ * same request with the next key in the pool. `currentIndex` is sticky —
+ * once a key succeeds we keep starting from it on the next call instead of
+ * round-robining blindly.
  */
 const fetch = require('node-fetch');
-const config = require('../config');
+const configProvider = require('./ConfigProvider');
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
@@ -23,9 +24,9 @@ class GroqService {
    * @returns {Promise<string>} raw text content of the model's reply
    */
   async chatCompletion(messages, options = {}) {
-    const keys = config.groq.apiKeys;
+    const { apiKeys: keys, model } = await configProvider.getGroqConfig();
     if (!keys.length) {
-      throw new Error('GROQ_API_KEYS is not configured');
+      throw new Error('No Groq API keys configured (admin panel or GROQ_API_KEYS)');
     }
 
     const { temperature = 0.7 } = options;
@@ -43,7 +44,7 @@ class GroqService {
             'Authorization': `Bearer ${key}`
           },
           body: JSON.stringify({
-            model: config.groq.model,
+            model,
             messages,
             temperature
           }),

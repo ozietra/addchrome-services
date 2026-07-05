@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const subscriptionRoutes = require('./routes/subscription');
 const paymentRoutes = require('./routes/payment');
 const priceRoutes = require('./routes/price');
+const listingConfigRoutes = require('./routes/listingConfig');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -94,6 +95,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/subscription', apiLimiter, subscriptionRoutes);
 app.use('/api/payment', paymentRoutes); // No rate limit on webhooks
 app.use('/api/price', apiLimiter, priceRoutes);
+app.use('/api/listing-config', apiLimiter, listingConfigRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 
 // Health check

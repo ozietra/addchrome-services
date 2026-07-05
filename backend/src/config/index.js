@@ -25,6 +25,9 @@ module.exports = {
     callbackUrl: process.env.PAYTR_CALLBACK_URL || ''
   },
   allowedOrigins: (process.env.ALLOWED_ORIGINS || '').split(','),
+  // Shared secret so the standalone ai-listing-backend service can pull the
+  // admin-configured Groq keys from GET /api/listing-config.
+  listingConfigSecret: process.env.LISTING_CONFIG_SECRET || '',
   extensions: {
     'ig-export': {
       name: { en: 'Instagram Follower Export Tool', tr: 'Instagram Takipçi Dışa Aktarma Aracı' },
