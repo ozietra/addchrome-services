@@ -7,8 +7,8 @@
 const API_BASE = 'https://addchrome.com/api';
 // Standalone AI Listing Writer backend: only the listing types/generate calls
 // go here. It has no database of its own — it proxies subscription checks
-// back to API_BASE above. Update this once the service is deployed on Render.
-const LISTING_API_BASE = 'https://ai-listing-backend.onrender.com/api';
+// back to API_BASE above.
+const LISTING_API_BASE = 'https://ai-listing-backend-gd87.onrender.com/api';
 
 const apiClient = {
   token: null,

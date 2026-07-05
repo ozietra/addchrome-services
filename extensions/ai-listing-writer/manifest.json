@@ -9,7 +9,7 @@
   ],
   "host_permissions": [
     "https://addchrome.com/*",
-    "https://ai-listing-backend.onrender.com/*"
+    "https://ai-listing-backend-gd87.onrender.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
