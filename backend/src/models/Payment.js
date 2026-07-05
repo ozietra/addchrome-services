@@ -8,7 +8,7 @@ const paymentSchema = new mongoose.Schema({
   },
   extensionId: {
     type: String,
-    enum: ['ig-export', 'ig-unfollow', 'price-compare'],
+    enum: ['ig-export', 'ig-unfollow', 'price-compare', 'ai-listing-writer'],
     required: true
   },
   amount: {

@@ -16,7 +16,8 @@
   const extNames = {
     'ig-export': 'IG Takipçi Export',
     'ig-unfollow': 'IG Unfollow AI',
-    'price-compare': 'Fiyat Karşılaştır'
+    'price-compare': 'Fiyat Karşılaştır',
+    'ai-listing-writer': 'AI İlan Yazarı'
   };
 
   // Navigation

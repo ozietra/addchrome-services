@@ -41,6 +41,12 @@ module.exports = {
       name: { en: 'Price Compare - Smart Shopping Assistant', tr: 'Fiyat Karşılaştır - Akıllı Alışveriş Asistanı' },
       free: { dailySearches: 5, maxSites: -1, maxResults: 30, historyEnabled: false, favoritesEnabled: false },
       premium: { dailySearches: -1, maxSites: -1, maxResults: 50, historyEnabled: true, favoritesEnabled: true }
+    },
+    'ai-listing-writer': {
+      name: { en: 'AI Listing Writer', tr: 'AI İlan Yazarı' },
+      // dailyGenerations = number of AI title+description generations allowed per day (free tier).
+      free: { dailyGenerations: 1 },
+      premium: { dailyGenerations: -1 }
     }
   }
 };

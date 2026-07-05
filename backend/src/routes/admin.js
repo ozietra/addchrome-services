@@ -71,7 +71,7 @@ router.get('/dashboard', protect, adminOnly, async (req, res, next) => {
 
     // Users per extension
     const extensionStats = {};
-    for (const extId of ['ig-export', 'ig-unfollow', 'price-compare']) {
+    for (const extId of ['ig-export', 'ig-unfollow', 'price-compare', 'ai-listing-writer']) {
       const premium = await User.countDocuments({
         'subscriptions': {
           $elemMatch: { extensionId: extId, plan: 'premium', isActive: true }
@@ -262,33 +262,44 @@ router.get('/extensions', protect, adminOnly, async (req, res, next) => {
   try {
     let settings = await ExtensionSettings.find();
 
-    // Auto-create settings if not exist
-    if (settings.length === 0) {
-      const defaults = [
-        {
-          extensionId: 'ig-export',
-          name: { en: 'Instagram Follower Export Tool', tr: 'Instagram Takipçi Dışa Aktarma Aracı' },
-          premiumPriceMonthly: 49.99,
-          premiumPriceYearly: 399.99,
-          freeLimits: config.extensions['ig-export'].free
-        },
-        {
-          extensionId: 'ig-unfollow',
-          name: { en: 'Instagram Unfollow AI', tr: 'Instagram Takipten Çıkarma AI' },
-          premiumPriceMonthly: 39.99,
-          premiumPriceYearly: 299.99,
-          freeLimits: config.extensions['ig-unfollow'].free
-        },
-        {
-          extensionId: 'price-compare',
-          name: { en: 'Price Compare - Smart Shopping Assistant', tr: 'Fiyat Karşılaştır - Akıllı Alışveriş Asistanı' },
-          premiumPriceMonthly: 29.99,
-          premiumPriceYearly: 249.99,
-          freeLimits: config.extensions['price-compare'].free
-        }
-      ];
+    // Auto-create settings for any extension that doesn't have a document yet
+    // (covers both a brand-new DB and an existing DB that predates this extension).
+    const allDefaults = [
+      {
+        extensionId: 'ig-export',
+        name: { en: 'Instagram Follower Export Tool', tr: 'Instagram Takipçi Dışa Aktarma Aracı' },
+        premiumPriceMonthly: 49.99,
+        premiumPriceYearly: 399.99,
+        freeLimits: config.extensions['ig-export'].free
+      },
+      {
+        extensionId: 'ig-unfollow',
+        name: { en: 'Instagram Unfollow AI', tr: 'Instagram Takipten Çıkarma AI' },
+        premiumPriceMonthly: 39.99,
+        premiumPriceYearly: 299.99,
+        freeLimits: config.extensions['ig-unfollow'].free
+      },
+      {
+        extensionId: 'price-compare',
+        name: { en: 'Price Compare - Smart Shopping Assistant', tr: 'Fiyat Karşılaştır - Akıllı Alışveriş Asistanı' },
+        premiumPriceMonthly: 29.99,
+        premiumPriceYearly: 249.99,
+        freeLimits: config.extensions['price-compare'].free
+      },
+      {
+        extensionId: 'ai-listing-writer',
+        name: { en: 'AI Listing Writer', tr: 'AI İlan Yazarı' },
+        premiumPriceMonthly: 29.99,
+        premiumPriceYearly: 249.99,
+        freeLimits: config.extensions['ai-listing-writer'].free
+      }
+    ];
 
-      settings = await ExtensionSettings.insertMany(defaults);
+    const existingIds = new Set(settings.map(s => s.extensionId));
+    const missingDefaults = allDefaults.filter(d => !existingIds.has(d.extensionId));
+    if (missingDefaults.length > 0) {
+      const created = await ExtensionSettings.insertMany(missingDefaults);
+      settings = settings.concat(created);
     }
 
     res.json({ success: true, data: { extensions: settings } });

@@ -7,7 +7,7 @@ const config = require('../config');
 // GET /api/subscription/status/:extensionId
 router.get('/status/:extensionId', protect, async (req, res) => {
   const { extensionId } = req.params;
-  const validExtensions = ['ig-export', 'ig-unfollow', 'price-compare'];
+  const validExtensions = ['ig-export', 'ig-unfollow', 'price-compare', 'ai-listing-writer'];
 
   if (!validExtensions.includes(extensionId)) {
     return res.status(400).json({ success: false, message: 'Invalid extension ID' });
@@ -53,6 +53,9 @@ router.post('/use/:extensionId', protect, async (req, res, next) => {
           break;
         case 'price-compare':
           limitKey = 'dailySearches';
+          break;
+        case 'ai-listing-writer':
+          limitKey = 'dailyGenerations';
           break;
       }
 

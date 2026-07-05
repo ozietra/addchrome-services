@@ -20,7 +20,7 @@ try {
   process.exit(1);
 }
 
-const EXTENSIONS = ['ig-follower-export', 'ig-unfollow-ai', 'price-compare'];
+const EXTENSIONS = ['ig-follower-export', 'ig-unfollow-ai', 'price-compare', 'ai-listing-writer'];
 
 // hangi svg -> hangi boyutlar
 const PLAN = [

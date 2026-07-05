@@ -16,3 +16,31 @@ services:
         value: production
       - key: SCRAPER_API_KEY
         sync: false   # Render panosunda elle girilecek
+
+  # AI Listing Writer backend — standalone, ucretsiz plan. Kendi veritabani YOK;
+  # auth/abonelik kontrolu icin mevcut (cPanel'deki) paylasilan backend'e
+  # (addchrome.com/api) HTTP ile sorar, boylece canli backend'e hic dokunulmaz.
+  # Free plan 15 dk hareketsizlikte uykuya gecer; canli tutmak icin UptimeRobot ile
+  # /api/health adresini 5 dk'da bir pingleyin.
+  - type: web
+    name: ai-listing-backend
+    runtime: node
+    repo: # (Render arayuzunde repo secilince otomatik dolar)
+    rootDir: ./ai-listing-backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    plan: free
+    region: frankfurt
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MAIN_BACKEND_URL
+        value: https://addchrome.com/api
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_API_KEYS
+        sync: false   # comma-separated Groq keys (gsk_...), entered manually on Render
+      - key: ALLOWED_ORIGINS
+        sync: false
