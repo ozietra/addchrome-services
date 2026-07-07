@@ -28,8 +28,17 @@ foreach ($e in $exts) {
     $zip = Join-Path $dist "$e.zip"
     if (Test-Path $zip) { Remove-Item $zip -Force }
 
+    # Store'a yuklenmeyecek dosyalari (mockup/promo gorseller) haric tutarak
+    # gecici bir staging klasorune kopyala, sonra onu paketle.
+    $staging = Join-Path $dist "_staging_$e"
+    if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
+    Copy-Item -Path $src -Destination $staging -Recurse
+    $storeAssets = Join-Path $staging "store-assets"
+    if (Test-Path $storeAssets) { Remove-Item $storeAssets -Recurse -Force }
+
     # 'folder\*' -> dosyalar zip KOKUNE gider (manifest.json en ustte olur)
-    Compress-Archive -Path (Join-Path $src "*") -DestinationPath $zip -Force
+    Compress-Archive -Path (Join-Path $staging "*") -DestinationPath $zip -Force
+    Remove-Item $staging -Recurse -Force
     $sizeKB = [math]::Round((Get-Item $zip).Length / 1KB, 1)
     Write-Host ("OK  -> {0}  ({1} KB)" -f $zip, $sizeKB) -ForegroundColor Green
 }
