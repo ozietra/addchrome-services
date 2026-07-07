@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gizlilik Politikası — AI İlan Yazarı</title>
+<style>
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.7;color:#1a1a24;max-width:820px;margin:0 auto;padding:40px 22px;}
+  h1{font-size:28px;margin-bottom:4px;} h2{font-size:20px;margin-top:34px;border-bottom:2px solid #8b5cf6;padding-bottom:6px;}
+  h3{font-size:16px;margin-top:22px;} .muted{color:#666;font-size:14px;} code{background:#f3f3f7;padding:2px 6px;border-radius:4px;}
+  .lang{margin-top:50px;border-top:1px solid #ddd;padding-top:20px;} a{color:#6d28d9;}
+</style>
+</head>
+<body>
+<h1>Gizlilik Politikası</h1>
+<p class="muted">AI İlan Yazarı (Başlık &amp; Açıklama Oluşturucu) — Son güncelleme: 7 Temmuz 2026</p>
+
+<p>Bu gizlilik politikası, "AI İlan Yazarı" Chrome eklentisinin hangi verileri işlediğini, neden işlediğini ve nasıl koruduğunu açıklar.</p>
+
+<h2>1. Topladığımız Veriler</h2>
+<h3>a) Hesap bilgileri</h3>
+<p>Giriş/kayıt sırasında <strong>e-posta adresiniz</strong> ve <strong>şifreniz</strong> alınır. Şifreniz düz metin olarak saklanmaz; geri döndürülemez şekilde şifrelenir (bcrypt ile hash'lenir).</p>
+<h3>b) Oluşturma verileri</h3>
+<p>Başlık/açıklama oluşturmak için forma yazdığınız <strong>ilan tipi, konu, önemli detaylar, şehir/konum ve referans/emlakçı ID</strong> bilgileri, yapay zeka ile metin üretmek amacıyla sunucularımıza ve yapay zeka sağlayıcımıza gönderilir. Bu bilgiler ilan içeriğinizle sınırlıdır; eklenti ziyaret ettiğiniz web sayfalarının içeriğini okumaz veya toplamaz.</p>
+<h3>c) Kullanım ve abonelik verileri</h3>
+<p>Günlük oluşturma sayısı, abonelik planınız (ücretsiz/premium) ve dil tercihiniz, limitleri uygulamak için saklanır.</p>
+
+<h2>2. Verileri Nasıl Kullanıyoruz</h2>
+<p>Yazdığınız ilan detayları yalnızca o an istediğiniz başlık/açıklamayı üretmek için kullanılır ve kalıcı olarak saklanmaz. Hesap verileri, oturumunuzu yönetmek, kullanım limitlerini uygulamak ve varsa ödemenizi işlemek için kullanılır. Verilerinizi <strong>satmıyoruz</strong> ve reklam amacıyla paylaşmıyoruz.</p>
+
+<h2>3. Üçüncü Taraf Hizmetler</h2>
+<ul>
+  <li><strong>Yapay zeka sağlayıcı:</strong> Başlık ve açıklama metni, Groq (groq.com) API'si kullanılarak üretilir. Bu işlem için yalnızca forma girdiğiniz ilan bilgileri gönderilir; e-posta adresiniz veya hesap kimliğiniz bu sağlayıcıya iletilmez.</li>
+  <li><strong>Veritabanı barındırma:</strong> Hesap, abonelik ve kullanım verileri güvenli bir bulut veritabanında (MongoDB Atlas) saklanır.</li>
+  <li><strong>Ödeme:</strong> Premium ödemeleri PayTR üzerinden yapılır; kart bilgileriniz bize ulaşmaz.</li>
+</ul>
+
+<h2>4. Veri Saklama, Silme ve Haklarınız (KVKK / GDPR)</h2>
+<p>Hesap verileriniz hesabınız aktif olduğu sürece saklanır. Oluşturma sırasında girdiğiniz ilan detayları (konu, açıklama metni vb.) sunucularımızda ayrıca saklanmaz. Verilerinize erişme, düzeltme ve silme haklarına sahipsiniz; talepleriniz için bize ulaşın.</p>
+
+<h2>5. İzinler</h2>
+<p><code>storage</code> izni yalnızca oturum bilginizi (giriş token'ı), dil tercihinizi ve en son oluşturduğunuz sonucu cihazınızda saklamak için kullanılır. Ana makine (host) izinleri yalnızca giriş/abonelik kontrolü ve yapay zeka içerik üretimi için gerekli olan iki sunucu adresimizle (addchrome.com ve AI İlan Yazarı arka uç servisi) sınırlıdır. Bu eklenti ziyaret ettiğiniz web sayfalarının içeriğini okumaz, değiştirmez veya izlemez.</p>
+
+<h2>6. İletişim</h2>
+<p><a href="mailto:admin@addchrome.com">admin@addchrome.com</a></p>
+
+<div class="lang">
+<h1>Privacy Policy (English)</h1>
+<p class="muted">AI Listing Writer (Title &amp; Description Generator) — Last updated: July 7, 2026</p>
+
+<h2>1. Data We Collect</h2>
+<p><strong>Account:</strong> email and password (irreversibly hashed with bcrypt). <strong>Generation data:</strong> the listing type, subject, key details, city/location, and reference/agency ID you type into the form are sent to our servers and our AI provider solely to generate the title and description; the extension does not read or collect the content of the web pages you visit. <strong>Usage &amp; subscription:</strong> daily generation counts, plan, and language preference.</p>
+
+<h2>2. How We Use It</h2>
+<p>The listing details you enter are used only to generate the requested title/description and are not stored afterward. Account data is used to manage your session, enforce usage limits, and process payments. We do <strong>not sell</strong> your data.</p>
+
+<h2>3. Third Parties</h2>
+<ul>
+  <li><strong>AI provider:</strong> Titles and descriptions are generated using the Groq (groq.com) API. Only the listing details you entered are sent for this purpose; your email address or account ID is never shared with this provider.</li>
+  <li><strong>Database hosting:</strong> Account, subscription, and usage data is stored in a secure cloud database (MongoDB Atlas).</li>
+  <li><strong>Payments:</strong> Premium payments are processed via PayTR; your card details never reach us.</li>
+</ul>
+
+<h2>4. Retention, Deletion &amp; Rights (GDPR)</h2>
+<p>Account data is kept while your account is active. Listing details you enter for generation (subject, details, etc.) are not separately stored on our servers afterward. You may request access, correction, or deletion at any time via the email below.</p>
+
+<h2>5. Permissions</h2>
+<p>The <code>storage</code> permission is used only to save your session token, language preference, and most recently generated result on your device. Host permissions are limited to the two servers required for login/subscription checks and AI content generation (addchrome.com and the AI Listing Writer backend). This extension does not read, modify, or track the content of the web pages you visit.</p>
+
+<h2>6. Contact</h2>
+<p><a href="mailto:admin@addchrome.com">admin@addchrome.com</a></p>
+</div>
+</body>
+</html>
