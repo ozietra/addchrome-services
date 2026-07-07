@@ -258,8 +258,13 @@
   };
 
   window.grantPremium = async function(id) {
-    const ext = prompt('Hangi eklenti için premium verilsin?\n\nig-export\nig-unfollow\nprice-compare');
+    const options = Object.entries(extNames).map(([id_, name]) => `${name} = ${id_}`).join('\n');
+    const ext = prompt(`Hangi eklenti için premium verilsin? Asağıdaki id'lerden birini yazın:\n\n${options}`);
     if (!ext) return;
+    if (!extNames[ext]) {
+      alert(`Geçersiz eklenti id: "${ext}". Şunlardan birini kullanın: ${Object.keys(extNames).join(', ')}`);
+      return;
+    }
     try {
       const userRes = await AdminAPI.getUser(id);
       const subs = userRes.data.user.subscriptions || [];
