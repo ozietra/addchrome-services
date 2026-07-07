@@ -8,7 +8,7 @@
 #   2) Her eklentiyi dist\<isim>.zip olarak paketler (manifest.json zip kokunde)
 
 $root = $PSScriptRoot
-$exts = @("ig-follower-export", "ig-unfollow-ai", "price-compare")
+$exts = @("ig-follower-export", "ig-unfollow-ai", "price-compare", "ai-listing-writer")
 $dist = Join-Path $root "dist"
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 
