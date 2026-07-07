@@ -1,7 +1,7 @@
 {
   "name": "ai-listing-backend",
   "version": "1.0.0",
-  "description": "Standalone microservice for the AI Listing Writer Chrome extension — generates titles/descriptions via Groq. Auth and subscription/usage limits are proxied to the shared chrome-extensions-backend so all extensions share one user base; this service never touches MongoDB directly.",
+  "description": "Standalone microservice for the AI Listing Writer Chrome extension — generates titles/descriptions via Groq. Connects directly to the shared chrome-extensions MongoDB Atlas cluster and verifies the same JWT tokens, so all extensions share one user base without depending on the shared backend's own (unreliable) hosting being up to date.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -13,6 +13,8 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.4.1",
     "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.0",
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {

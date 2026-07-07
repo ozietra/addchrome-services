@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const listingContentService = require('../services/ListingContentService');
-const subscriptionProxy = require('../services/SubscriptionProxy');
 const { getCategories, getTypes, getTypeById } = require('../data/listingTypes');
+const { protect } = require('../middleware/auth');
+const config = require('../config');
 
-function getBearerToken(req) {
-  const header = req.headers.authorization;
-  if (header && header.startsWith('Bearer ')) {
-    return header.split(' ')[1];
-  }
-  return null;
-}
+const EXTENSION_ID = 'ai-listing-writer';
 
 // GET /api/listing/types - Get supported categories + content types (public)
 router.get('/types', (req, res) => {
@@ -18,13 +13,8 @@ router.get('/types', (req, res) => {
 });
 
 // POST /api/listing/generate - Generate an AI title + description for a listing type
-router.post('/generate', async (req, res, next) => {
+router.post('/generate', protect, async (req, res, next) => {
   try {
-    const token = getBearerToken(req);
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'Authentication required' });
-    }
-
     const { type, subject, details, city, referenceId, tone, outputLanguage } = req.body;
 
     if (!type || !getTypeById(type)) {
@@ -34,26 +24,14 @@ router.post('/generate', async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'subject and details are required' });
     }
 
-    // Ask the shared backend whether this user is premium / how much free
-    // quota they have left today — that backend owns the User data, not us.
-    let status;
-    try {
-      status = await subscriptionProxy.getStatus(token);
-    } catch (proxyError) {
-      return res.status(proxyError.statusCode || 502).json({
-        success: false,
-        message: proxyError.statusCode === 401
-          ? 'Invalid or expired session'
-          : 'Could not verify your subscription right now. Please try again.'
-      });
-    }
+    const isPremium = req.user.isPremium(EXTENSION_ID);
+    const dailyUsage = req.user.getDailyUsage(EXTENSION_ID);
 
-    const limits = status.limits;
-    if (!status.isPremium && limits.dailyGenerations !== -1 && status.dailyUsage >= limits.dailyGenerations) {
+    if (!isPremium && dailyUsage >= config.freeDailyGenerations) {
       return res.status(429).json({
         success: false,
         message: 'Daily generation limit reached. Upgrade to premium for unlimited access.',
-        data: { dailyUsage: status.dailyUsage, limit: limits.dailyGenerations }
+        data: { dailyUsage, limit: config.freeDailyGenerations }
       });
     }
 
@@ -75,14 +53,7 @@ router.post('/generate', async (req, res, next) => {
       });
     }
 
-    // Record usage on the shared backend (source of truth). Non-fatal: the
-    // user still gets their generated content even if this bookkeeping call
-    // fails — worst case they get one extra free generation that day.
-    try {
-      await subscriptionProxy.markUsage(token);
-    } catch (usageError) {
-      console.warn('[Listing/Generate] usage tracking failed:', usageError.message);
-    }
+    await req.user.incrementUsage(EXTENSION_ID);
 
     res.json({
       success: true,
@@ -90,8 +61,8 @@ router.post('/generate', async (req, res, next) => {
         title: result.title,
         description: result.description,
         type,
-        isPremium: status.isPremium,
-        dailyUsage: status.dailyUsage + 1
+        isPremium,
+        dailyUsage: dailyUsage + 1
       }
     });
   } catch (error) {

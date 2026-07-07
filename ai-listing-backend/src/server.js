@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 const config = require('./config');
+const connectDB = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 const listingRoutes = require('./routes/listing');
 
@@ -12,6 +13,8 @@ const app = express();
 // Runs behind a platform reverse proxy (Render) — trust proxy headers so
 // express-rate-limit and req.ip work correctly.
 app.set('trust proxy', 1);
+
+connectDB();
 
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -56,7 +59,6 @@ app.listen(PORT, () => {
   console.log(`  AI Listing Writer Backend`);
   console.log(`  Environment: ${config.nodeEnv}`);
   console.log(`  Port: ${PORT}`);
-  console.log(`  Main backend (auth/subscriptions): ${config.mainBackendUrl}`);
   console.log(`  API: http://localhost:${PORT}/api`);
   console.log(`===========================================\n`);
 });
